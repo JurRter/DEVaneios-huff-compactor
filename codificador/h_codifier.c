@@ -64,7 +64,7 @@ Node* construir_arvore_huffman(MinHeap *heap) {
         Node* rgtn = minminheap(heap); //rgtN = right Nó
 
         Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia
-        pai->byte = "*"; //* é o simbolo placeholder para o byte ficticio do pai
+        pai->byte = "0"; // 0 é o placeholder para o byte dummy do pai
 
         pai->freq = esqn->freq + rgtn->freq; 
 
