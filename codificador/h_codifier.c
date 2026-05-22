@@ -48,13 +48,26 @@ Node* minminheap(MinHeap *heap) {
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
-    MinHeap* h = malloc(sizeof(MinHeap));
-    for (int i = 0; i < 256; i++) {
+    if(heap->tam == 0) return NULL;
+
+    while (heap->tam > 1){
+
+        Node* esqn = minminheap(heap); //esqN = esquerda Nó
+        Node* rgtn = minminheap(heap); //rgtN + right Nó
+
+        Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia, e na visualização do slide ele é só a frequencia, ne, mas ele precisa receber um simbolo tambem
+        pai->byte = "*"; //* é o simbolo ficticio para o byte ficticio do pai
+
+        pai->freq = esqn->freq + rgtn->freq; 
+
+        pai->esq = esqn;
+        pai->dir = rgtn;
+
+        insertfila(heap, pai);
 
     }
 
-    // TODO: Fazer um loop extraindo os 2 menores, criando um pai e inserindo de volta, até restar 1 nó.
-    return NULL;
+    return minminheap(heap);
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
