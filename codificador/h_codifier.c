@@ -48,7 +48,7 @@ Node* minminheap(MinHeap *heap) {
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
-    MinHeap h = malloc(sizeof(MinHeap));
+    MinHeap* h = malloc(sizeof(MinHeap));
     for (int i = 0; i < 256; i++) {
 
     }
