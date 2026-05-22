@@ -43,8 +43,16 @@ void insertfila(MinHeap *heap, Node *no) {
 }
 
 Node* minminheap(MinHeap *heap) {
-    // TODO extrair o minimo
-    return NULL;
+    if(heap->tam == 0) return NULL;
+
+    Node* raiz = heap->vetor[0];
+
+    heap->vetor[0] = heap->vetor[heap->tam - 1];
+    heap->tam--; //manobra de substituição
+
+    //TODO: função aux de reorganização do heap 'heapify_down(heap, )
+
+    return raiz;
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
@@ -55,8 +63,8 @@ Node* construir_arvore_huffman(MinHeap *heap) {
         Node* esqn = minminheap(heap); //esqN = esquerda Nó
         Node* rgtn = minminheap(heap); //rgtN = right Nó
 
-        Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia, e na visualização do slide ele é só a frequencia, ne, mas ele precisa receber um simbolo tambem
-        pai->byte = "*"; //* é o simbolo ficticio para o byte ficticio do pai
+        Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia
+        pai->byte = "*"; //* é o simbolo placeholder para o byte ficticio do pai
 
         pai->freq = esqn->freq + rgtn->freq; 
 
@@ -67,7 +75,7 @@ Node* construir_arvore_huffman(MinHeap *heap) {
 
     }
 
-    return minminheap(heap);
+    return minminheap(heap); //no final sobra apenas a root e é retornada aq
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
