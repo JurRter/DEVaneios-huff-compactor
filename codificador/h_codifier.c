@@ -85,7 +85,10 @@ void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int pr
         strcpy(dicionario[raiz->byte], caminho_atual); // se é q eu entendi oq vc quer dizer com dicionario ne, ele vai copiar a str, jogar no dicionario com a posiçao do dicionario de mesmo byte ai se eles forem iguais eles caem no mesmo lugar, pelo codigo n estar vermelho eu acho q ta funcionando maneiro
     }
 
-
+    caminho_atual[profundidade] = '0';
+    gerar_dicionario(raiz->esq, dicionario, caminho_atual, profundidade + 1); //desce pra esquerda e marca + 1
+    caminho_atual[profundidade] = '1';
+    gerar_dicionario(raiz->dir, dicionario, caminho_atual, profundidade + 1); //pro outro aldo
 
     // TODO: Navegar recursivamente (0 para esquerda, 1 para direita) e salvar a string na folha correspondente.
 }
