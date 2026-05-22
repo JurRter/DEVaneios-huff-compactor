@@ -53,7 +53,7 @@ Node* construir_arvore_huffman(MinHeap *heap) {
     while (heap->tam > 1){
 
         Node* esqn = minminheap(heap); //esqN = esquerda Nó
-        Node* rgtn = minminheap(heap); //rgtN + right Nó
+        Node* rgtn = minminheap(heap); //rgtN = right Nó
 
         Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia, e na visualização do slide ele é só a frequencia, ne, mas ele precisa receber um simbolo tambem
         pai->byte = "*"; //* é o simbolo ficticio para o byte ficticio do pai
