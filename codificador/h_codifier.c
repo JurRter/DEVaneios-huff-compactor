@@ -17,25 +17,29 @@ typedef struct MinHeap {
 
 
 void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
-     arquivo_entrada = fopen("arquivo.txt", "rb");
-    if (!arquivo_entrada) {
-        perror("fopen");
-        return; //da erro se o arquivo for null e retorna
-    }
-    unsigned int freq[256] = {};
-    unsigned char *buf;
+    if (!arquivo_entrada || !frequencias)return; // checa se a frequencia e o arquivo de entrada e null.
+    unsigned char buf [4096];
     size_t n;
     while ((n = fread(buf,1,sizeof(buf), arquivo_entrada))>0) {
         for (size_t i = 0; i < n; i++) {
-            freq[buf[i]]++;
+            frequencias[buf[i]]++; //vai checar o byte(vulgo o simbolo e adicionar na lista de frequencia dele) adicionar nas frequencias
         }
     }
-    fclose(arquivo_entrada);
 }
 
 MinHeap* filaprioridade(unsigned int *frequencias) {
-    // TODO
-    return NULL;
+    MinHeap* heap = malloc(sizeof(MinHeap));
+    if (!heap) return NULL;
+    heap->tam = 0;
+    heap->cap = 256;
+    heap->vetor = malloc(heap->cap * sizeof(Node*));
+    if (!heap->vetor) return NULL;
+    for (int i = 0; i < 256; i++) {
+        if (frequencias[i] > 0) {
+
+        }
+    }
+    return heap;
 }
 
 void insertfila(MinHeap *heap, Node *no) {
@@ -48,7 +52,6 @@ Node* minminheap(MinHeap *heap) {
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
-    MinHeap h = malloc(sizeof(MinHeap));
     for (int i = 0; i < 256; i++) {
 
     }
