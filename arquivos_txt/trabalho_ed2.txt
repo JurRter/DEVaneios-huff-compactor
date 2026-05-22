@@ -1,0 +1,94 @@
+Tarefa Prática - Implementação do Algoritmo de Huffman
+Linguagem Permitida: C ou Java
+
+Abordagem: Implementação Completa (Codificador e Decodificador)
+1. Contexto e Objetivo
+
+A compressão de dados é uma aplicação fundamental das estruturas de dados não-
+lineares. O objetivo deste trabalho é aplicar os conceitos de Árvores Binárias, Filas de
+
+Prioridade (Min-Heaps) e Tabelas Hash para implementar um software utilitário de
+linha de comando capaz de compactar e descompactar arquivos de dados usando o
+Algoritmo de Huffman.
+
+O seu programa deverá ser dividido em duas ferramentas (ou dois modos de
+execução):
+
+2. Requisitos Técnicos de Implementação
+Parte A: O Codificador (Compressão)
+O processo de compressão deve seguir rigorosamente os seguintes passos estruturais:
+
+Parte B: O Decodificador (Descompressão)
+O processo de descompressão deve reverter o arquivo .huff :
+1. O Codificador (Compressor): Aplica o algoritmo de Huffman buscando minimizar o
+tamanho de um arquivo original gerando um arquivo .huff .
+2. O Decodificador (Decompressor): Lê o arquivo .huff e reconstrói o arquivo
+original sem perda de nenhum byte.
+
+1. Frequência: Ler o arquivo de entrada byte a byte (8 bits) e calcular a frequência de
+ocorrência de cada um dos 256 bytes possíveis.
+2. Gravação do Arquivo ( .huff ): O arquivo de saída deve conter:
+Cabeçalho: A tabela de frequências (ou a árvore serializada) para que o
+decodificador possa reconstruir a árvore (ver mais detalhes no formato do
+arquivo abaixo);
+Dados: A sequência de bits correspondente aos bytes originais codificados.
+
+3. Formato do Arquivo de Saída ( .huff )
+Para simplificar a implementação, o cabeçalho do arquivo compactado adotará o
+seguinte layout sequencial:
+
+Campo Tamanho Descrição
+Contagem 4 bytes
+(int)
+
+Quantidade de bytes únicos presentes na tabela de frequências.
+
+Tabela Variável Sequência de pares `[Byte (1 byte)
+Bits
+Lixo
+
+1 byte Inteiro (0 a 7) que indica quantos bits do último byte do arquivo
+codificado devem ser descartados (visto que arquivos em disco são
+gravados em múltiplos de 8 bits).
+Payload Variável O bloco de dados codificado em bits.
+
+4. Interface de Linha de Comando (CLI)
+O programa deverá aceitar argumentos via terminal (se não se lembrar dessa parte,
+procure por argumentos da função main).
+O formato de execução deve ser:
+
+Para compilar (exemplo em C):
+
+Bash
+
+Onde [arquivos.c] é a lista de arquivos .c do seu projeto.
+
+Para Comprimir:
+
+Bash
+1. Leitura do Cabeçalho: Ler as informações de frequência do início do arquivo
+.huff .
+2. Reconstrução da Árvore: Recriar a exata mesma árvore de Huffman utilizando as
+frequências lidas.
+3. Decodificação do Fluxo: Ler o restante do arquivo bit a bit reconstruindo o arquivo
+original.
+
+gcc [arquivos.c] -o huffman
+
+Para Descomprimir:
+
+Bash
+
+5. Arquivos de Teste
+Procure entradas que satisfaçam os seguintes critérios:
+
+6. Apresentação dos resultados
+O Código deverá ficar em um repositório git público e o link deverá ser entregue junto
+com os slides (o link deverá estar no primeiro slide). No repositório deverá ter a
+apresentação e os arquivos de entrada escolhidos. Além disso, ter no arquivo
+readme.md os resultados da porcentagem de compactação.
+
+Seu grupo deverá fazer uma apresentação de até 5 min da solução, explicando como
+foi implementada, quais arquivos foram usados nos testes e qual o grau de
+compactação (porcentagem entre o tamanho do arquivo de entrada original e o arquivo
+de saída). Deve ser feita a demonstração da sua aplicação ao vivo.
