@@ -1,21 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct Node {
-    unsigned char byte;          
-    unsigned int frequencia;     
-    struct Node *esquerda;       
-    struct Node *direita;        
+    unsigned char byte;
+    unsigned int freq;
+    struct Node *esq;
+    struct Node *dir;
 } Node;
 
 typedef struct MinHeap {
-    unsigned int tamanho_atual;  
-    unsigned int capacidade;     
-    Node **vetor_de_nos;        
+    unsigned int tam;
+    unsigned int cap;
+    Node **vetor;
 } MinHeap;
 
+
 void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
-    //TODO
+     arquivo_entrada = fopen("arquivo.txt", "rb");
+    if (!arquivo_entrada) {
+        perror("fopen");
+        return; //da erro se o arquivo for null e retorna
+    }
+    unsigned int freq[256] = {};
+    unsigned char *buf;
+    size_t n;
+    while ((n = fread(buf,1,sizeof(buf), arquivo_entrada))>0) {
+        for (size_t i = 0; i < n; i++) {
+            freq[buf[i]]++;
+        }
+    }
+    fclose(arquivo_entrada);
 }
 
 MinHeap* filaprioridade(unsigned int *frequencias) {
@@ -33,11 +48,24 @@ Node* minminheap(MinHeap *heap) {
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
+    MinHeap h = malloc(sizeof(MinHeap));
+    for (int i = 0; i < 256; i++) {
+
+    }
+
     // TODO: Fazer um loop extraindo os 2 menores, criando um pai e inserindo de volta, até restar 1 nó.
     return NULL;
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
+    if (!raiz) return; //se for nulo retorna
+    if (!raiz->dir && !raiz->esq) { //checagem de folha
+        caminho_atual[profundidade] = '\0'; // finaliza a linha e copia pro dicionario
+        strcpy(dicionario[raiz->byte], caminho_atual); // se é q eu entendi oq vc quer dizer com dicionario ne, ele vai copiar a str, jogar no dicionario com a posiçao do dicionario de mesmo byte ai se eles forem iguais eles caem no mesmo lugar, pelo codigo n estar vermelho eu acho q ta funcionando maneiro
+    }
+
+
+
     // TODO: Navegar recursivamente (0 para esquerda, 1 para direita) e salvar a string na folha correspondente.
 }
 
