@@ -17,14 +17,20 @@ typedef struct MinHeap {
 
 
 void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
-    if (!arquivo_entrada || !frequencias)return; // checa se a frequencia e o arquivo de entrada e null.
-    unsigned char buf [4096];
+     arquivo_entrada = fopen("arquivo.txt", "rb");
+    if (!arquivo_entrada) {
+        perror("fopen");
+        return; //da erro se o arquivo for null e retorna
+    }
+    unsigned int freq[256] = {};
+    unsigned char *buf;
     size_t n;
     while ((n = fread(buf,1,sizeof(buf), arquivo_entrada))>0) {
         for (size_t i = 0; i < n; i++) {
-            frequencias[buf[i]]++; //vai checar o byte(vulgo o simbolo e adicionar na lista de frequencia dele) adicionar nas frequencias
+            freq[buf[i]]++;
         }
     }
+    fclose(arquivo_entrada);
 }
 
 MinHeap* filaprioridade(unsigned int *frequencias) {
@@ -47,17 +53,39 @@ void insertfila(MinHeap *heap, Node *no) {
 }
 
 Node* minminheap(MinHeap *heap) {
-    // TODO extrair o minimo
-    return NULL;
+    if(heap->tam == 0) return NULL;
+
+    Node* raiz = heap->vetor[0];
+
+    heap->vetor[0] = heap->vetor[heap->tam - 1];
+    heap->tam--; //manobra de substituição
+
+    //TODO: função aux de reorganização do heap 'heapify_down(heap, )
+
+    return raiz;
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
-    for (int i = 0; i < 256; i++) {
+    if(heap->tam == 0) return NULL;
+
+    while (heap->tam > 1){
+
+        Node* esqn = minminheap(heap); //esqN = esquerda Nó
+        Node* rgtn = minminheap(heap); //rgtN = right Nó
+
+        Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia
+        pai->byte = "0"; // 0 é o placeholder para o byte dummy do pai
+
+        pai->freq = esqn->freq + rgtn->freq;
+
+        pai->esq = esqn;
+        pai->dir = rgtn;
+
+        insertfila(heap, pai);
 
     }
 
-    // TODO: Fazer um loop extraindo os 2 menores, criando um pai e inserindo de volta, até restar 1 nó.
-    return NULL;
+    return minminheap(heap); //no final sobra apenas a root e é retornada aq
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
@@ -67,7 +95,10 @@ void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int pr
         strcpy(dicionario[raiz->byte], caminho_atual); // se é q eu entendi oq vc quer dizer com dicionario ne, ele vai copiar a str, jogar no dicionario com a posiçao do dicionario de mesmo byte ai se eles forem iguais eles caem no mesmo lugar, pelo codigo n estar vermelho eu acho q ta funcionando maneiro
     }
 
-
+    caminho_atual[profundidade] = '0';
+    gerar_dicionario(raiz->esq, dicionario, caminho_atual, profundidade + 1); //desce pra esquerda e marca + 1
+    caminho_atual[profundidade] = '1';
+    gerar_dicionario(raiz->dir, dicionario, caminho_atual, profundidade + 1); //pro outro aldo
 
     // TODO: Navegar recursivamente (0 para esquerda, 1 para direita) e salvar a string na folha correspondente.
 }
