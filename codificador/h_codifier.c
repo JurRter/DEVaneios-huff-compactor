@@ -17,20 +17,31 @@ typedef struct MinHeap {
 
 
 void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
-     arquivo_entrada = fopen("arquivo.txt", "rb");
-    if (!arquivo_entrada) {
-        perror("fopen");
-        return; //da erro se o arquivo for null e retorna
-    }
-    unsigned int freq[256] = {};
-    unsigned char *buf;
+    if (!arquivo_entrada) return;
+    unsigned char buf[1024];
     size_t n;
-    while ((n = fread(buf,1,sizeof(buf), arquivo_entrada))>0) {
+    while ((n = fread(buf, 1, sizeof(buf), arquivo_entrada)) > 0) {
         for (size_t i = 0; i < n; i++) {
-            freq[buf[i]]++;
+            frequencias[buf[i]]++;
         }
     }
-    fclose(arquivo_entrada);
+}
+
+void heapify_up(MinHeap *heap, int idx) {
+    int pai = (idx - 1) / 2;
+    if (idx > 0 && heap->vetor[idx]->freq < heap->vetor[pai]->freq) {
+        Node *temp = heap->vetor[idx];
+        heap->vetor[idx] = heap->vetor[pai];
+        heap->vetor[pai] = temp;
+        heapify_up(heap, pai);
+    }
+}
+
+void insertfila(MinHeap *heap, Node *no) {
+    if (heap->tam == heap->cap) return;
+    heap->vetor[heap->tam] = no;
+    heapify_up(heap, heap->tam);
+    heap->tam++;
 }
 
 MinHeap* filaprioridade(unsigned int *frequencias) {
@@ -42,14 +53,33 @@ MinHeap* filaprioridade(unsigned int *frequencias) {
     if (!heap->vetor) return NULL;
     for (int i = 0; i < 256; i++) {
         if (frequencias[i] > 0) {
-
+            Node* no = (Node*)malloc(sizeof(Node));
+            if (!no) return NULL;
+            no->byte = (unsigned char)i;
+            no->freq = frequencias[i];
+            no->esq = no->dir = NULL;
+            insertfila(heap, no);
         }
     }
     return heap;
 }
 
-void insertfila(MinHeap *heap, Node *no) {
-    // TODO
+void heapify_down(MinHeap *heap, int idx) {
+    int menor = idx;
+    int esq = 2 * idx + 1;
+    int dir = 2 * idx + 2;
+
+    if (esq < heap->tam && heap->vetor[esq]->freq < heap->vetor[menor]->freq)
+        menor = esq;
+    if (dir < heap->tam && heap->vetor[dir]->freq < heap->vetor[menor]->freq)
+        menor = dir;
+
+    if (menor != idx) {
+        Node *temp = heap->vetor[idx];
+        heap->vetor[idx] = heap->vetor[menor];
+        heap->vetor[menor] = temp;
+        heapify_down(heap, menor);
+    }
 }
 
 Node* minminheap(MinHeap *heap) {
@@ -60,21 +90,22 @@ Node* minminheap(MinHeap *heap) {
     heap->vetor[0] = heap->vetor[heap->tam - 1];
     heap->tam--; //manobra de substituição
 
-    //TODO: função aux de reorganização do heap 'heapify_down(heap, )
+    heapify_down(heap, 0); //agora checa o no de menor frequencia
 
     return raiz;
 }
 
 Node* construir_arvore_huffman(MinHeap *heap) {
-    if(heap->tam == 0) return NULL;
+    if(!heap || heap->tam == 0) return NULL;
 
     while (heap->tam > 1){
 
         Node* esqn = minminheap(heap); //esqN = esquerda Nó
         Node* rgtn = minminheap(heap); //rgtN = right Nó
 
-        Node* pai = (Node*)malloc(sizeof(Node)); // isso aqui pode parecer confuso a principio, mas o nó pai é o nó da frequencia
-        pai->byte = "0"; // 0 é o placeholder para o byte dummy do pai
+        Node* pai = (Node*)malloc(sizeof(Node)); 
+        if (!pai) return NULL;
+        pai->byte = '*'; // Placeholder para nó interno
 
         pai->freq = esqn->freq + rgtn->freq;
 
@@ -85,7 +116,10 @@ Node* construir_arvore_huffman(MinHeap *heap) {
 
     }
 
-    return minminheap(heap); //no final sobra apenas a root e é retornada aq
+    Node* raiz = minminheap(heap);
+    free(heap->vetor);
+    free(heap);
+    return raiz; //no final sobra apenas a root e é retornada aq
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
@@ -113,15 +147,36 @@ void gravar_arquivo_comprimido(const char *caminho_origem, const char *caminho_d
     // TODO: Abrir arquivo origem (leitura) e destino (escrita binária). Gravar cabeçalho e os bits empacotados.
 }
 
+
+//print simples pa testar uns negocios
+void imprimir_arvore(Node *raiz, int nivel) {
+    if (raiz) {
+        imprimir_arvore(raiz->dir, nivel + 1);
+        for (int i = 0; i < nivel; i++) printf("   ");
+        if (!raiz->esq && !raiz->dir)
+            printf("[%c:%u]\n", raiz->byte, raiz->freq);
+        else
+            printf("(*:%u)\n", raiz->freq);
+        imprimir_arvore(raiz->esq, nivel + 1);
+    }
+}
+
 int executar_compressao(const char *arquivo_entrada, const char *arquivo_saida) {
     // TODO: Função "maestro" que chama todas as funções acima na ordem correta.
     return 0; // 0 para erro, 1 para sucesso
 }
 
-/*void liberar_arvore(Node *raiz) {
-    // TODO: Percorrer em pós-ordem dando free() nos filhos da esquerda, direita e depois na raiz.
+void liberar_arvore(Node *raiz) {
+    if (!raiz) return;
+    liberar_arvore(raiz->esq);
+    liberar_arvore(raiz->dir);
+    free(raiz);
 }
 
 void liberar_dicionario(char **dicionario) {
-    // TODO: Fazer um loop de 0 a 255 dando free() nas strings alocadas.
-} aqui viria alguma de limpeza de memoria, veja ai se quer fazer essa parada*/
+    if (!dicionario) return;
+    for (int i = 0; i < 256; i++) {
+        if (dicionario[i]) free(dicionario[i]);
+    }
+    free(dicionario);
+}
