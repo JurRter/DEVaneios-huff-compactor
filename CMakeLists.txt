@@ -5,11 +5,12 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(Codifier
         "codificador/h_codifier.c"
+        "codificador/h_codifier.h"
         "codificador/main.c"
-       
 )
 
 add_executable(Decodifier
         "decodificador/h_decodifier.c"
+        "decodificador/h_decodifier.h"
         "decodificador/main.c"
 )

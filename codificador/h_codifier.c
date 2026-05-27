@@ -1,19 +1,6 @@
-#include <stdio.h>
+#include "h_codifier.h"
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct Node {
-    unsigned char byte;
-    unsigned int freq;
-    struct Node *esq;
-    struct Node *dir;
-} Node;
-
-typedef struct MinHeap {
-    unsigned int tam;
-    unsigned int cap;
-    Node **vetor;
-} MinHeap;
 
 
 void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
@@ -27,11 +14,11 @@ void calc_frequencias(FILE *arquivo_entrada, unsigned int *frequencias) {
     }
 }
 
-void heapify_up(MinHeap *heap, int idx) {
-    int pai = (idx - 1) / 2;
-    if (idx > 0 && heap->vetor[idx]->freq < heap->vetor[pai]->freq) {
-        Node *temp = heap->vetor[idx];
-        heap->vetor[idx] = heap->vetor[pai];
+void heapify_up(MinHeap *heap, int index) {
+    int pai = (index - 1) / 2;
+    if (index > 0 && heap->vetor[index]->freq < heap->vetor[pai]->freq) {
+        Node *temp = heap->vetor[index];
+        heap->vetor[index] = heap->vetor[pai];
         heap->vetor[pai] = temp;
         heapify_up(heap, pai);
     }
@@ -64,19 +51,19 @@ MinHeap* filaprioridade(unsigned int *frequencias) {
     return heap;
 }
 
-void heapify_down(MinHeap *heap, int idx) {
-    int menor = idx;
-    int esq = 2 * idx + 1;
-    int dir = 2 * idx + 2;
+void heapify_down(MinHeap *heap, int index) {
+    int menor = index;
+    int esq = 2 * index + 1;
+    int dir = 2 * index + 2;
 
     if (esq < heap->tam && heap->vetor[esq]->freq < heap->vetor[menor]->freq)
         menor = esq;
     if (dir < heap->tam && heap->vetor[dir]->freq < heap->vetor[menor]->freq)
         menor = dir;
 
-    if (menor != idx) {
-        Node *temp = heap->vetor[idx];
-        heap->vetor[idx] = heap->vetor[menor];
+    if (menor != index) {
+        Node *temp = heap->vetor[index];
+        heap->vetor[index] = heap->vetor[menor];
         heap->vetor[menor] = temp;
         heapify_down(heap, menor);
     }
@@ -100,17 +87,17 @@ Node* construir_arvore_huffman(MinHeap *heap) {
 
     while (heap->tam > 1){
 
-        Node* esqn = minminheap(heap); //esqN = esquerda Nó
-        Node* rgtn = minminheap(heap); //rgtN = right Nó
+        Node* esq = minminheap(heap);
+        Node* rit = minminheap(heap);
 
         Node* pai = (Node*)malloc(sizeof(Node)); 
         if (!pai) return NULL;
         pai->byte = '*'; // Placeholder para nó interno
 
-        pai->freq = esqn->freq + rgtn->freq;
+        pai->freq = esq->freq + rit->freq;
 
-        pai->esq = esqn;
-        pai->dir = rgtn;
+        pai->esq = esq;
+        pai->dir = rit;
 
         insertfila(heap, pai);
 
@@ -123,47 +110,101 @@ Node* construir_arvore_huffman(MinHeap *heap) {
 }
 
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade) {
-    if (!raiz) return; //se for nulo retorna
-    if (!raiz->dir && !raiz->esq) { //checagem de folha
-        caminho_atual[profundidade] = '\0'; // finaliza a linha e copia pro dicionario
-        strcpy(dicionario[raiz->byte], caminho_atual); // se é q eu entendi oq vc quer dizer com dicionario ne, ele vai copiar a str, jogar no dicionario com a posiçao do dicionario de mesmo byte ai se eles forem iguais eles caem no mesmo lugar, pelo codigo n estar vermelho eu acho q ta funcionando maneiro
+    if (!raiz) return;
+    if (!raiz->dir && !raiz->esq) {
+        caminho_atual[profundidade] = '\0';
+        strcpy(dicionario[raiz->byte], caminho_atual);
+    } else {
+        caminho_atual[profundidade] = '0';
+        gerar_dicionario(raiz->esq, dicionario, caminho_atual, profundidade + 1);
+        caminho_atual[profundidade] = '1';
+        gerar_dicionario(raiz->dir, dicionario, caminho_atual, profundidade + 1);
     }
+}
 
-    caminho_atual[profundidade] = '0';
-    gerar_dicionario(raiz->esq, dicionario, caminho_atual, profundidade + 1); //desce pra esquerda e marca + 1
-    caminho_atual[profundidade] = '1';
-    gerar_dicionario(raiz->dir, dicionario, caminho_atual, profundidade + 1); //pro outro aldo
-
-    // TODO: Navegar recursivamente (0 para esquerda, 1 para direita) e salvar a string na folha correspondente.
+void serial_tree(Node *raiz, FILE *saida, unsigned short *tam_arvore) {
+    if (!raiz) return;
+    (*tam_arvore)++;
+    if (!raiz->esq && !raiz->dir) {
+        if (raiz->byte == '*' || raiz->byte == '\\') {
+            unsigned char escape = '\\';
+            fwrite(&escape, 1, 1, saida);
+            (*tam_arvore)++;
+        }
+        fwrite(&(raiz->byte), 1, 1, saida);
+    } else {
+        unsigned char byte = '*';
+        fwrite(&byte, 1, 1, saida);
+        serial_tree(raiz->esq, saida, tam_arvore);
+        serial_tree(raiz->dir, saida, tam_arvore);
+    }
 }
 
 int calcbitslixo(unsigned int *frequencias, char **dicionario) {
-    // TODO: Somar (frequencia * tamanho_do_codigo) para todos os bytes e calcular o resto da divisão por 8.
-    return 0;
+    unsigned long long total_bits = 0;
+    for (int i = 0; i < 256; i++) {
+        if (frequencias[i] > 0) {
+            total_bits += (unsigned long long)frequencias[i] * strlen(dicionario[i]);
+        }
+    }
+    int lixo = 8 - (total_bits % 8);
+    return (lixo == 8) ? 0 : lixo;
 }
 
 void gravar_arquivo_comprimido(const char *caminho_origem, const char *caminho_destino, 
-                               unsigned int *frequencias, char **dicionario, int bits_lixo) {
-    // TODO: Abrir arquivo origem (leitura) e destino (escrita binária). Gravar cabeçalho e os bits empacotados.
-}
+                               Node *raiz, char **dicionario, int bits_lixo, unsigned int *frequencias) {
+    FILE *origem = fopen(caminho_origem, "rb");
+    FILE *destino = fopen(caminho_destino, "wb");
+    if (!origem || !destino) return;
 
-
-//print simples pa testar uns negocios
-void imprimir_arvore(Node *raiz, int nivel) {
-    if (raiz) {
-        imprimir_arvore(raiz->dir, nivel + 1);
-        for (int i = 0; i < nivel; i++) printf("   ");
-        if (!raiz->esq && !raiz->dir)
-            printf("[%c:%u]\n", raiz->byte, raiz->freq);
-        else
-            printf("(*:%u)\n", raiz->freq);
-        imprimir_arvore(raiz->esq, nivel + 1);
+    // 1. Contagem (4 bytes): Quantidade de bytes únicos
+    int contagem = 0;
+    for (int i = 0; i < 256; i++) {
+        if (frequencias[i] > 0) contagem++;
     }
-}
+    fwrite(&contagem, sizeof(int), 1, destino);
 
-int executar_compressao(const char *arquivo_entrada, const char *arquivo_saida) {
-    // TODO: Função "maestro" que chama todas as funções acima na ordem correta.
-    return 0; // 0 para erro, 1 para sucesso
+    // 2. Tabela: Sequência de pares [Byte (1 byte) | Frequencia (4 bytes)]
+    for (int i = 0; i < 256; i++) {
+        if (frequencias[i] > 0) {
+            unsigned char b = (unsigned char)i;
+            fwrite(&b, 1, 1, destino);
+            fwrite(&frequencias[i], sizeof(unsigned int), 1, destino);
+        }
+    }
+
+    // 3. Lixo (1 byte)
+    unsigned char lixo = (unsigned char)bits_lixo;
+    fwrite(&lixo, 1, 1, destino);
+
+    // 4. Payload: Dados codificados
+    unsigned char buffer_in[1024];
+    unsigned char byte_out = 0;
+    int bit_count = 0;
+    size_t n;
+
+    while ((n = fread(buffer_in, 1, sizeof(buffer_in), origem)) > 0) {
+        for (size_t i = 0; i < n; i++) {
+            char *codigo = dicionario[buffer_in[i]];
+            for (int j = 0; codigo[j] != '\0'; j++) {
+                if (codigo[j] == '1') {
+                    byte_out = byte_out | (1 << (7 - bit_count));
+                }
+                bit_count++;
+                if (bit_count == 8) {
+                    fwrite(&byte_out, 1, 1, destino);
+                    byte_out = 0;
+                    bit_count = 0;
+                }
+            }
+        }
+    }
+    if (bit_count > 0) {
+        fwrite(&byte_out, 1, 1, destino);
+    }
+
+    fclose(origem);
+    fclose(destino);
 }
 
 void liberar_arvore(Node *raiz) {
