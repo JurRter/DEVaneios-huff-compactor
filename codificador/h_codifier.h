@@ -24,7 +24,6 @@ void heapify_down(MinHeap *heap, int index);
 Node* minminheap(MinHeap *heap);
 Node* construir_arvore_huffman(MinHeap *heap);
 void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int profundidade);
-void serial_tree(Node *raiz, FILE *saida, unsigned short *tam_arvore);
 int calcbitslixo(unsigned int *frequencias, char **dicionario);
 void gravar_arquivo_comprimido(const char *caminho_origem, const char *caminho_destino, 
                                Node *raiz, char **dicionario, int bits_lixo, unsigned int *frequencias);

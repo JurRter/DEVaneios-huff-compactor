@@ -122,23 +122,6 @@ void gerar_dicionario(Node *raiz, char **dicionario, char *caminho_atual, int pr
     }
 }
 
-void serial_tree(Node *raiz, FILE *saida, unsigned short *tam_arvore) {
-    if (!raiz) return;
-    (*tam_arvore)++;
-    if (!raiz->esq && !raiz->dir) {
-        if (raiz->byte == '*' || raiz->byte == '\\') {
-            unsigned char escape = '\\';
-            fwrite(&escape, 1, 1, saida);
-            (*tam_arvore)++;
-        }
-        fwrite(&(raiz->byte), 1, 1, saida);
-    } else {
-        unsigned char byte = '*';
-        fwrite(&byte, 1, 1, saida);
-        serial_tree(raiz->esq, saida, tam_arvore);
-        serial_tree(raiz->dir, saida, tam_arvore);
-    }
-}
 
 int calcbitslixo(unsigned int *frequencias, char **dicionario) {
     unsigned long long total_bits = 0;
@@ -151,8 +134,7 @@ int calcbitslixo(unsigned int *frequencias, char **dicionario) {
     return (lixo == 8) ? 0 : lixo;
 }
 
-void gravar_arquivo_comprimido(const char *caminho_origem, const char *caminho_destino, 
-                               Node *raiz, char **dicionario, int bits_lixo, unsigned int *frequencias) {
+void gravar_arquivo_comprimido(const char *caminho_origem, const char *caminho_destino, Node *raiz, char **dicionario, int bits_lixo, unsigned int *frequencias) {
     FILE *origem = fopen(caminho_origem, "rb");
     FILE *destino = fopen(caminho_destino, "wb");
     if (!origem || !destino) return;
