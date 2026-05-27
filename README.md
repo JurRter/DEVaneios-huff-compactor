@@ -76,8 +76,9 @@ Testes realizados com os arquivos presentes na pasta `arquivos_txt/`:
 | Arquivo Original | Tamanho Original | Tamanho Comprimido | Acrescimo (%) |
 | :--- | :--- |:-------------------|:--------------|
 | `key_red_dead...txt`| 29 bytes | 147 bytes          | **406,9%**    |
+| `bangbang.png`| 831.017 bytes | 832.302 bytes      | **0,15%**     |
 
-*Em arquivos extremamente pequenos, a compressão teve um efeito negativo.*
+*Em arquivos extremamente pequenos ou algoritmos perfeitamente comprimidos (como PNG, ZIP, MP4), o limite teórico da entropia é atingido, portanto a adição do cabeçalho da árvore de Huffman no payload causará um leve aumento no formato de saída.*
 
 ## 👥 Equipe DEVaneios
 - Brendo
