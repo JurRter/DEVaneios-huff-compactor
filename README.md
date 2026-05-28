@@ -8,6 +8,7 @@ Este projeto implementa um utilitário de linha de comando para **compactação 
 - `codificador/`: Implementação do compressor.
 - `decodificador/`: Implementação do decompressor.
 - `arquivos_txt/`: Exemplos de arquivos para teste.
+- `arquivos_png/`: Exemplos de arquivos para teste.
 - `README.md`: Documentação principal.
 
 
