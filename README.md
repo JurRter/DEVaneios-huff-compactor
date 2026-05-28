@@ -45,7 +45,7 @@ gcc codificador/main.c codificador/h_codifier -o huff_compressor
 # Compilar Decodificador
 gcc decodificador/*.c -o huff_decompressor
 ou
-gcc codificador/main.c codificador/h_decodifier -o huff_compressor
+gcc codificador/main.c codificador/h_decodifier -o huff_decompressor
 ```
 
 ## Como Usar
